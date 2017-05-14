@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "iostream"
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -60,9 +61,11 @@ void main()
 	setlocale(LC_ALL, "Russian");
 	MyFile plaintext;
 	MyFile key;
-	cout << "Поместите файл, для которого необходимо сгенерировать ключ в директорию проекта Key_maker/Key_maker с названием text.txt\n";
-	system("pause");
-	if (!plaintext.Open("text.txt"))
+	string text;
+	string keytxt;
+	cout << "Поместите файл, для которого необходимо сгенерировать ключ в директорию проекта Key_maker/Key_maker\nИмя файла:";
+	cin >> text;
+	if (!plaintext.Open(text))
 	{
 		cout << "error";
 		system("pause");
@@ -73,14 +76,18 @@ void main()
 	{
 		key.GetData().push_back((char)rand() % 256);
 	}
-	if (!key.Write("key.txt"))
+	cout << "\nСохранить как:";
+	cin >> keytxt;
+	if (!key.Write(keytxt))
 	{
 		cout << "error";
 	}
 	else
 	{
-		cout << "Зашифрованное сообщение в файле Key_maker/Key_maker/key.txt\n";
+		cout << "Ключ в файле Key_maker/Key_maker/" <<keytxt << "\n";
 	}
 	cout << system("pause");
+	delete &plaintext;
+	delete &key;
 	return;
 }
