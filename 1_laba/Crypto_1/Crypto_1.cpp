@@ -4,12 +4,11 @@
 #include <conio.h>
 #include <vector>
 
-using namespace std;
 
 class MyFile
 {
 private:
-	vector<char> _data;
+	std::vector<char> _data;
 	FILE* _file;
 
 public:
@@ -21,9 +20,9 @@ public:
 	{
         _data.clear();
 	}
-	vector<char> &GetData() { return _data; }
+	std::vector<char> &GetData() { return _data; }
 
-	bool Open(string name)
+	bool Open(std::string name)
 	{
 		const char *_name = name.c_str();
 		_file = fopen(_name,"rb");
@@ -39,7 +38,7 @@ public:
 		}
 		return !_data.empty();
 	}
-	bool Write(string name)
+	bool Write(std::string name)
 	{	
 		const char *_name = name.c_str();
 		_file = fopen(_name, "w+b");
@@ -56,8 +55,8 @@ private:
 	MyFile plaintext;
 	MyFile key;
 	MyFile ciphertext;
-	string in_file_name;
-	string out_file_name;
+	std::string in_file_name;
+	std::string out_file_name;
 
 public:
 	One_Time_Pad()
@@ -69,35 +68,35 @@ public:
     }
 	void Encrypt()
 	{
-		cout << "Переместите файл в директорию проекта Crypto_1/Crypto_1\n";
-		cout << "Имя файла для шифрования:\n";
-		cin >> in_file_name;
+		std::cout << "Move a file at Crypto_1/Crypto_1\n";
+		std::cout << "Filename for encrypting:\n";
+		std::cin >> in_file_name;
 		if (!plaintext.Open(in_file_name))
 		{
-			cout << "error";
+			std::cout << "error";
 			system("pause");
 			return;
 		}
 		system("cls");
-		cout << "Размер файла = " << plaintext.GetData().size() <<"\n";
+		std::cout << "Filesize = " << plaintext.GetData().size() <<"\n";
 		for (int i = 0; i < plaintext.GetData().size(); i++)
 		{
 			key.GetData().push_back((char)rand() % 256);
 		}
 		if (!key.Write("key.txt"))
 		{
-			cout << "error";
+			std::cout << "error";
 		}
 		else
 		{
-			cout << "Ключ сгенерирован!\nСм. файл Key_maker/Key_maker/key.txt\n";
+			std::cout << "Key is ready!\nLook at Key_maker/Key_maker/key.txt\n";
 		}
-		cout << "Для продолжения работы программы нажмите любую клавишу...";
+		std::cout << "Press any key...";
 		_getch();
 		system("cls");
 		if (!key.Open("key.txt"))
 		{
-			cout << "error";
+			std::cout << "error";
 			system("pause");
 			return;
 		}
@@ -105,17 +104,17 @@ public:
 		{
 			ciphertext.GetData().push_back(plaintext.GetData().at(i) ^ key.GetData().at(i));
 		}
-		cout << "Файл зашифрован!\nСохранить как:\n";
-		cin >> out_file_name;
+		std::cout << "File encrypted!\nSave as:\n";
+		std::cin >> out_file_name;
 		if (!ciphertext.Write(out_file_name))
 		{
-			cout << "error";
+			std::cout << "error";
 		}
 		else
 		{
-			cout << "Файл сохранен в директорию Crypto_1/Crypto_1!" << "\n";
+			std::cout << "File saved at Crypto_1/Crypto_1!" << "\n";
 		}
-		cout << "Для завершения работы программы нажмите любую клавишу...";
+		std::cout << "Press any key...";
 		_getch();
 		ciphertext.~MyFile();
 		plaintext.~MyFile();
@@ -123,29 +122,29 @@ public:
 	}
 	void Decrypt()
 	{
-		cout << "Переместите зашифрованный файл в директорию проекта Crypto_1/Crypto_1\n";
-		cout << "Имя файла для расшифрования:\n";
-		cin >> in_file_name;
+		std::cout << "Move encrypted file at Crypto_1/Crypto_1\n";
+		std::cout << "Filename for decrypting:\n";
+		std::cin >> in_file_name;
 		if (!ciphertext.Open(in_file_name))
 		{
-			cout << "error";
+			std::cout << "error";
 			system("pause");
 			return;
 		}
 		system("cls");
-		cout << "Переместите ключ для расшифрования файла в директорию проекта Crypto_1/Crypto_1\n как key.txt";
-		cout << "\nДля продолжения работы программы нажмите любую клавишу...";
+		std::cout << "Move a key for decrypting at Crypto_1/Crypto_1\n как key.txt";
+		std::cout << "\nPress any key...";
 		_getch();
 		system("cls");
 		if (!key.Open("key.txt"))
 		{
-			cout << "error";
+			std::cout << "error";
 			system("pause");
 			return;
 		}
 		if (!key.GetData().size()==ciphertext.GetData().size())
 		{
-			cout << "error";
+			std::cout << "error";
 			system("pause");
 			return;
 		}
@@ -153,18 +152,18 @@ public:
 		{
 			plaintext.GetData().push_back(ciphertext.GetData().at(i) ^ key.GetData().at(i));
 		}
-		cout << "Файл расшифрован!\nСохранить как:\n";
-		cin >> out_file_name;
+		std::cout << "File decrypted!\nSave as:\n";
+		std::cin >> out_file_name;
 		system("cls");
 		if (!plaintext.Write(out_file_name))
 		{
-			cout << "error";
+			std::cout << "error";
 		}
 		else
 		{
-			cout << "Файл сохранен в директорию Crypto_1/Crypto_1!\n";
+			std::cout << "File saved at Crypto_1/Crypto_1!\n";
 		}
-		cout << "Для завершения работы программы нажмите любую клавишу...";
+		std::cout << "Press any key for ending...";
 		_getch();
 		delete &ciphertext;
 		delete &plaintext;
@@ -175,11 +174,10 @@ public:
 
 void main()
 {
-	setlocale(LC_ALL, "Russian");
 	int flag;
 	One_Time_Pad Work_Pad;
-	cout << "Зашифровать(1) или расшифровать(2) файл?\n";
-	cin >> flag;
+	std::cout << "Encrypt(1) or decrypt(2) file?\n";
+	std::cin >> flag;
 	system("cls");
 	if (flag == 1)
 		Work_Pad.Encrypt();

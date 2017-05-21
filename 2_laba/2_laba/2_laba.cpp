@@ -8,13 +8,12 @@
 #include <algorithm>
 #include <iterator>
 
-using namespace std;
 
 class Snapshot
 {
 private:
-	vector<string> pid;
-	vector<string> name;
+	std::vector<std::string> pid;
+	std::vector<std::string> name;
 public:
 	Snapshot() : pid(NULL), name(NULL)
 	{	}
@@ -23,8 +22,8 @@ public:
         pid.clear();
         name.clear();
     }
-	vector<string> &GetPid() { return pid; }
-	vector<string> &GetName() { return name; };
+	std::vector<std::string> &GetPid() { return pid; }
+	std::vector<std::string> &GetName() { return name; };
 
 };
 
@@ -47,8 +46,8 @@ VOID CreateProcessList(HANDLE CONST hStdOut, Snapshot &MyProc)
 		sprintf(pid_tmp, "%x", peProcessEntry.th32ProcessID);
 		char exe_tmp[sizeof(peProcessEntry.szExeFile)];
 		wcstombs(exe_tmp, peProcessEntry.szExeFile, sizeof(peProcessEntry.szExeFile));
-		string pid = string(pid_tmp);
-		string exe = string(exe_tmp);
+		std::string pid = std::string(pid_tmp);
+		std::string exe = std::string(exe_tmp);
 		MyProc.GetPid().push_back(pid);
 		MyProc.GetName().push_back(exe);
 	} while (Process32Next(hSnapshot, &peProcessEntry));
@@ -76,16 +75,16 @@ int main(int argc, char* argv[])
             {
                 if (find(second.GetPid().begin(), second.GetPid().end(), first.GetPid().at(i)) == second.GetPid().end()) //проверка на исчезновение процесса
                 {
-                    cout << "Process closed:\nID: " << first.GetPid().at(i) <<
-                        "\nExecute File: " << first.GetName().at(i) << endl << endl;
+                    std::cout << "Process closed:\nID: " << first.GetPid().at(i) <<
+                        "\nExecute File: " << first.GetName().at(i) << std::endl << std::endl;
                 }
             }
             for (int i = 0; i < second.GetPid().size(); i++)
             {
                 if (find(first.GetPid().begin(), first.GetPid().end(), second.GetPid().at(i)) == first.GetPid().end()) //проверка на появление процесса
                 {
-                    cout << "Process started:\nID: " << second.GetPid().at(i) <<
-                        "\nExecute File: " << second.GetName().at(i) << endl << endl;
+                    std::cout << "Process started:\nID: " << second.GetPid().at(i) <<
+                        "\nExecute File: " << second.GetName().at(i) << std::endl << std::endl;
                 }
             }
             first = second;
