@@ -18,6 +18,10 @@ public:
 	}
 	~MyFile()
 	{
+        if (_file)
+        {
+            delete _file;
+        }
         _data.clear();
 	}
 	std::vector<char> &GetData() { return _data; }
@@ -116,9 +120,6 @@ public:
 		}
 		std::cout << "Press any key...";
 		_getch();
-		ciphertext.~MyFile();
-		plaintext.~MyFile();
-		key.~MyFile();
 	}
 	void Decrypt()
 	{
@@ -165,9 +166,7 @@ public:
 		}
 		std::cout << "Press any key for ending...";
 		_getch();
-		delete &ciphertext;
-		delete &plaintext;
-		delete &key;
+
 	}
 	
 };
@@ -183,6 +182,5 @@ void main()
 		Work_Pad.Encrypt();
 	if (flag == 2)
 		Work_Pad.Decrypt();
-    Work_Pad.~One_Time_Pad();
 	return;
 }
