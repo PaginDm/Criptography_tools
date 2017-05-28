@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include <windows.h>
 #include <conio.h>
 #include <tlhelp32.h>

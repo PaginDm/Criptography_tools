@@ -1,9 +1,6 @@
 // 3_laba.cpp: определяет точку входа для консольного приложения.
 //
-
-#include "stdafx.h"
 #include "iostream"
-
 #include <string>
 #include <conio.h>
 #include "..\cryptopp565\des.h"
