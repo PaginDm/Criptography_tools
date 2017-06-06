@@ -1,7 +1,7 @@
 #include "iostream"
 #include <string>
 #include <conio.h>
-#include "..\cryptopp565\aes.h"
+#include "..\cryptopp565\rsa.h"
 #include "..\cryptopp565\cryptlib.h"
 #include "..\cryptopp565\modes.h"
 #include "..\cryptopp565\osrng.h"
@@ -9,6 +9,8 @@
 #include "..\cryptopp565\cbcmac.h"
 #include <vector>
 
+#pragma warning(disable : 4996)
+#define _CRT_NO_WARNINGS
 
 class MyFile
 {
