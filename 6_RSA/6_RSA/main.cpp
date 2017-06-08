@@ -11,6 +11,7 @@
 #include <vector>
 
 #pragma warning(disable : 4996)
+#pragma comment(lib,"cryptlib.lib")
 #define _CRT_NO_WARNINGS
 
 class MyFile
@@ -77,101 +78,12 @@ public:
             std::cout << "Key is ready!\nLook at directory with project directory. \n";
         }
     }
-    MyFile GetKey()
-    {
-        return key;
-    }
-    void OpenKey()
-    {
-        system("cls");
-        std::cout << "Move a key for decrypting at directory with project directory as key.txt";
-        std::cout << "\nPress any key...";
-        _getch();
-        system("cls");
-        if (!key.Open("..\\..\\key.txt"))
-        {
-            std::cout << "error";
-            system("pause");
-            return;
-        }
 
-    }
-
-
-};
-
-class RSA
-{
-private:
-    MyFile plaintext;
-    MyFile privatekey;
-    MyFile publickey;
-    MyFile ivs;
-    MyFile ciphertext;
-    CryptoPP::AutoSeededRandomPool rng;
-    std::string in_file_name;
-    std::string out_file_name;
-    void generate_ivs(byte* iv)
+    void GenerateForRsa()
     {
-        CryptoPP::AutoSeededRandomPool rng(true);
-        rng.GenerateBlock(iv, sizeof(iv));
-        system("cls");
-        for (int i = 0; i < CryptoPP::AES::BLOCKSIZE; i++)
-        {
-            ivs.GetData().push_back(iv[i]);
-        }
-        if (!ivs.Write("ivs.txt"))
-        {
-            std::cout << "error";
-        }
-        else
-        {
-            std::cout << "Initialize vector is ready!\nLook at 4_lab/4_lab//iv.txt\n";
-        }
-        std::cout << "Press any key...";
-        _getch();
-    }
-    void get_ivs(byte* iv)
-    {
-        system("cls");
-        std::cout << "Move a initialize vector for decrypting at 4_lab/4_lab\n as ivs.txt";
-        std::cout << "\nPress any key...";
-        _getch();
-        system("cls");
-        if (!ivs.Open("ivs.txt"))
-        {
-            std::cout << "error";
-            system("pause");
-        }
-        for (int i = 0; i < CryptoPP::AES::BLOCKSIZE; i++)
-        {
-            iv[i] = ivs.GetData().at(i);
-        }
-    }
-public:
-    RSA()
-        : in_file_name(""), out_file_name("")
-    {
-
-    }
-    ~RSA()
-    {
-
-    }
-    void Encrypt()
-    {
-        std::cout << "Move a file at 3_laba/3_laba\n";
-        std::cout << "Filename for encrypt:\n";
-        std::cin >> in_file_name;
-        if (!plaintext.Open("..\\..\\" + in_file_name))
-        {
-            std::cout << "error";
-            system("pause");
-            return;
-        }
-        system("cls");
-        std::cout << "Filesize = " << plaintext.GetData().size() << "\n";
-
+        MyFile privatekey;
+        MyFile publickey;
+        CryptoPP::AutoSeededRandomPool rng;
         std::string strprivkey, strpubkey;
         CryptoPP::InvertibleRSAFunction privateKey;
 
@@ -207,15 +119,93 @@ public:
         {
             std::cout << "error";
         }
+    }
+    MyFile GetKey()
+    {
+        return key;
+    }
+    void OpenKey()
+    {
+        system("cls");
+        std::cout << "Move a key for decrypting at directory with project directory as key.txt";
+        std::cout << "\nPress any key...";
+        _getch();
+        system("cls");
+        if (!key.Open("..\\..\\key.txt"))
+        {
+            std::cout << "error";
+            system("pause");
+            return;
+        }
+
+    }
 
 
-        ciphertext.GetData().resize(plaintext.GetData().size());
-        CryptoPP::ArraySink cs(&ciphertext.GetData()[0], ciphertext.GetData().size());
-        CryptoPP::RSAES_OAEP_SHA_Encryptor Encryptor(publicKey);
+};
 
-        CryptoPP::ArraySource(plaintext.GetData().data(), plaintext.GetData().size(), true,
-            new CryptoPP::PK_EncryptorFilter(rng, Encryptor, new CryptoPP::ArraySink(cs))
-            );
+class RSA
+{
+private:
+    MyFile plaintext;
+    MyFile privatekey;
+    MyFile publickey;
+    MyFile ivs;
+    MyFile ciphertext;
+    CryptoPP::AutoSeededRandomPool rng;
+    std::string in_file_name;
+    std::string out_file_name;
+public:
+    RSA()
+        : in_file_name(""), out_file_name("")
+    {
+
+    }
+    ~RSA()
+    {
+
+    }
+    void Encrypt()
+    {
+        std::cout << "Move a file at directory with project directory.\n";
+        std::cout << "Filename for encrypt:\n";
+        std::cin >> in_file_name;
+        if (!plaintext.Open("..\\..\\" + in_file_name))
+        {
+            std::cout << "error";
+            system("pause");
+            return;
+        }
+        system("cls");
+        if (!publickey.Open("..\\..\\public.txt"))
+        {
+            return;
+        }
+
+        std::string string_pub = "";
+        std::string string_plaintext = "";
+
+        for each  (byte var in plaintext.GetData())
+        {
+            string_plaintext += var;
+        }
+        for each  (byte var in publickey.GetData())
+        {
+            string_pub += var;
+        }
+
+		CryptoPP::StringSource pubString(string_pub, true, new CryptoPP::Base64Decoder);
+		CryptoPP::RSAES_OAEP_SHA_Encryptor Encryptor(pubString);
+		CryptoPP::AutoSeededRandomPool rnd;
+		std::string encryptText = "";
+
+        CryptoPP::StringSource(string_plaintext, true,
+            new CryptoPP::PK_EncryptorFilter(rnd, Encryptor,
+            new CryptoPP::StringSink(encryptText)));
+
+        for (int i = 0; i < encryptText.size(); i++)
+        {
+            ciphertext.GetData().push_back(encryptText[i]);
+        }
 
         if (!ciphertext.Write("..\\..\\cipher.txt"))
         {
@@ -223,53 +213,58 @@ public:
         }
         else
         {
-            std::cout << "File saved as 4_lab/4_lab!" << "\n";
+            std::cout << "File saved at directory with project directory as cipher.txt" << "\n";
         }
-        std::cout << "Press any key for ending...";
-        getch();
 
     }
     void Decrypt()
     {
-        std::cout << "Filename for decrypt:\n";
-        std::cin >> in_file_name;
-        if (!ciphertext.Open("..\\..\\" + in_file_name))
-        {
-            std::cout << "error";
-            system("pause");
-            return;
-        }
-
-        //CryptoPP::LoadPrivateKey("rsa-roundtrip.key", key2);
+        system("cls");
+        plaintext.GetData().clear();
         if (!privatekey.Open("..\\..\\private.txt"))
         {
-            std::cout << "error";
-            system("pause");
             return;
         }
-        //std::cout << privatekey.GetData().size();
-        CryptoPP::ArraySource privkey(privatekey.GetData().data(), privatekey.GetData().size(), true, new CryptoPP::Base64Decoder);
+        if (!ciphertext.Open("..\\..\\cipher.txt"))
+        {
+            return;
+        }
+        std::string string_priv = "";
+        std::string string_ciphertext = "";
 
-        CryptoPP::RSA::PrivateKey privateKey;
-        privateKey.BERDecode(privkey);
+        for each  (byte var in ciphertext.GetData())
+        {
+            string_ciphertext += var;
+        }
+        for each  (byte var in privatekey.GetData())
+        {
+            string_priv += var;
+        }
+        CryptoPP::StringSource privString(string_priv, true, new CryptoPP::Base64Decoder);
+        CryptoPP::RSAES_OAEP_SHA_Decryptor Decryptor(privString);
+        CryptoPP::AutoSeededRandomPool randPool;
+        std::string decryptText = "";
 
-        plaintext.GetData().resize(ciphertext.GetData().size());
-        CryptoPP::ArraySink ds(&plaintext.GetData()[0], plaintext.GetData().size());
-        CryptoPP::RSAES_OAEP_SHA_Decryptor Decryptor(privateKey);
 
-        CryptoPP::ArraySource(ciphertext.GetData().data(), ciphertext.GetData().size(), true,
-            new CryptoPP::PK_DecryptorFilter(rng, Decryptor, new CryptoPP::ArraySink(ds))
-            );
-        if (!plaintext.Write("..\\..\\plain.txt"))
+        CryptoPP::StringSource(string_ciphertext, true,
+            new CryptoPP::PK_DecryptorFilter(randPool, Decryptor,
+            new CryptoPP::StringSink(decryptText)));
+
+        for (int i = 0; i < decryptText.size(); i++)
+        {
+            plaintext.GetData().push_back(decryptText[i]);
+        }
+
+        std::cout << "File decrypted!\nSave as:\n";
+        std::cin >> out_file_name;
+        if (!plaintext.Write("..\\..\\"+out_file_name))
         {
             std::cout << "error";
         }
         else
         {
-            std::cout << "File saved as 4_lab/4_lab!" << "\n";
+            std::cout << "File saved at directory with project directory.\n";
         }
-        std::cout << "Press any key for ending...";
-        getch();
     }
 
 };
@@ -278,13 +273,12 @@ void main()
 {
     int flag;
     RSA rsa;
+    keygener keys;
     system("cls");
-    std::cout << "Encrypt(1) or Decrypt(2) a file by AES?\n";
-    std::cin >> flag;
-    system("cls");
-    if (flag==1)
-        rsa.Encrypt();
-    if (flag == 2)
-        rsa.Decrypt();
+    keys.GenerateForRsa();
+    rsa.Encrypt();
+    rsa.Decrypt();
+    std::cout << "Press any key for ending...";
+    getch();
 }
 

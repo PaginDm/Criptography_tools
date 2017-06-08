@@ -137,7 +137,58 @@ public:
 void main()
 {
     SHA sha;
-    sha.GetHashForFile();
+    //sha.GetHashForFile();
+    MyFile Hash;
+    MyFile plaintext;
+    std::string out_file_name;
+    std::string in_file_name;
+    std::vector<byte> tmp;
+    //sha.GetHashForFile();
+    std::cout << "Move a file at directory with project directory.\n";
+    std::cout << "Filename for hashing:\n";
+    std::cin >> in_file_name;
+    if (!plaintext.Open("..\\..\\" + in_file_name))
+    {
+    std::cout << "error";
+    system("pause");
+    return;
+    }
+    system("cls");
+    tmp.resize(2048);
+    int count_of_blocks = plaintext.GetData().size() / 2048;
+    int add_bytes = plaintext.GetData().size() % 2048;
+    plaintext.GetData().resize(2048*(count_of_blocks + 1));
+    for (int i = count_of_blocks * 2048 + add_bytes; i < (count_of_blocks + 1) * 2048; i++)
+    {
+    plaintext.GetData().at(i) = 0;
+    }
+
+    for (int i = 0; i < count_of_blocks + 1; i++)
+    {
+    for (int j = 0; j < 2048; j++)
+    {
+    tmp.at(j) = plaintext.GetData().at(i * 2048 + j);
+    }
+    sha.GetHashForVector(tmp);
+    for each  (byte bit in sha.GetHashAsVector())
+    {
+        Hash.GetData().push_back(bit);
+    }
+    }
+
+    std::cout << "File hasned!\nSave as:\n";
+    std::cin >> out_file_name;
+    system("cls");
+    if (!Hash.Write("..\\..\\" + out_file_name))
+    {
+    std::cout << "error";
+    }
+    else
+    {
+    std::cout << "File saved at directory with project directory." << "\n";
+    }
+    std::cout << "Press any key for ending...";
+    _getch();
 }
 
  //Source - https://www.cryptopp.com/wiki/User_Guide:_cryptlib.h
