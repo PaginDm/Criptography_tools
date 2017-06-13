@@ -2,53 +2,11 @@
 #include <string>
 #include <conio.h>
 #include <vector>
+#include "..\..\MyFile.h"
 
 #pragma warning(disable : 4996)
 #define _CRT_NO_WARNINGS
 
-class MyFile
-{
-private:
-    std::vector<unsigned char> _data;
-    FILE* _file;
-
-public:
-    MyFile()
-        : _file(NULL), _data(NULL)
-    {
-    }
-    ~MyFile()
-    {
-        _data.clear();
-    }
-    std::vector<unsigned char> &GetData() { return _data; }
-
-    bool Open(std::string name)
-    {
-        const char *_name = name.c_str();
-        _file = fopen(_name, "rb");
-
-        if (_file != NULL)
-        {
-            fseek(_file, 0, SEEK_END);
-            int size = ftell(_file);
-            rewind(_file);
-            _data.resize(size);
-            fread(_data.data(), 1, size, _file);
-            fclose(_file);
-        }
-        return !_data.empty();
-    }
-    bool Write(std::string name)
-    {
-        const char *_name = name.c_str();
-        _file = fopen(_name, "w+b");
-        int flag = fwrite(_data.data(), 1, _data.size(), _file);
-        fclose(_file);
-        return !(flag == 0);
-    }
-
-};
 
 class keygener
 {
@@ -59,7 +17,7 @@ public:
     {
         for (int i = 0; i < size; i++)
         {
-            key.GetData().push_back((unsigned char)rand() % 256);
+            key.GetData().push_back((byte)rand() % 256);
         }
         if (!key.Write("..\\..\\key.txt"))
         {
@@ -101,7 +59,7 @@ private:
     MyFile ciphertext;
     std::string in_file_name;
     std::string out_file_name;
-    unsigned char S_table[256];
+    byte S_table[256];
     int i = 0;
     int j = 0;
 
@@ -109,13 +67,13 @@ private:
     {
         for (i = 0; i < 256; i++)
         {
-            S_table[i] = (unsigned char)i;
+            S_table[i] = (byte)i;
         }
         j = 0;
         for (i = 0; i < 256; i++)
         {
             j = (j + S_table[i] + key.GetData()[i%key.GetData().size()]) % 256;
-            unsigned char temp = S_table[i];
+            byte temp = S_table[i];
             S_table[i] = S_table[j];
             S_table[j] = temp;
         }
@@ -123,11 +81,11 @@ private:
         j = 0;
     }
 
-    unsigned char get_key()
+    byte get_key()
     {
         i = (i + 1) % 256;
         j = (j + S_table[i]) % 256;
-        unsigned char temp = S_table[i];
+        byte temp = S_table[i];
         S_table[i] = S_table[j];
         S_table[j] = temp;
         return S_table[(S_table[i] + S_table[j]) % 256];

@@ -1,6 +1,7 @@
 #include "iostream"
 #include <string>
 #include <conio.h>
+#include "..\..\MyFile.h"
 #include "..\..\cryptopp565\rsa.h"
 #include "..\..\cryptopp565\cryptlib.h"
 #include "..\..\cryptopp565\modes.h"
@@ -8,55 +9,12 @@
 #include "..\..\cryptopp565\filters.h"
 #include "..\..\cryptopp565\base64.h"
 #include "..\..\cryptopp565\cbcmac.h"
+#include "..\..\MyFile.h"
 #include <vector>
 
 #pragma warning(disable : 4996)
 #pragma comment(lib,"cryptlib.lib")
 #define _CRT_NO_WARNINGS
-
-class MyFile
-{
-private:
-    std::vector<byte> _data;
-    FILE* _file;
-
-public:
-    MyFile()
-        : _file(NULL), _data(NULL)
-    {
-    }
-    ~MyFile()
-    {
-        _data.clear();
-    }
-    std::vector<byte> &GetData() { return _data; }
-
-    bool Open(std::string name)
-    {
-        const char *_name = name.c_str();
-        _file = fopen(_name, "rb");
-
-        if (_file != NULL)
-        {
-            fseek(_file, 0, SEEK_END);
-            int size = ftell(_file);
-            rewind(_file);
-            _data.resize(size);
-            fread(_data.data(), 1, size, _file);
-            fclose(_file);
-        }
-        return !_data.empty();
-    }
-    bool Write(std::string name)
-    {
-        const char *_name = name.c_str();
-        _file = fopen(_name, "w+b");
-        int flag = fwrite(_data.data(), 1, _data.size(), _file);
-        fclose(_file);
-        return !(flag == 0);
-    }
-
-};
 
 class keygener
 {
@@ -180,14 +138,8 @@ public:
         {
             return;
         }
-
         std::string string_pub = "";
-        std::string string_plaintext = "";
 
-        for each  (byte var in plaintext.GetData())
-        {
-            string_plaintext += var;
-        }
         for each  (byte var in publickey.GetData())
         {
             string_pub += var;
@@ -197,15 +149,49 @@ public:
 		CryptoPP::RSAES_OAEP_SHA_Encryptor Encryptor(pubString);
 		CryptoPP::AutoSeededRandomPool rnd;
 		std::string encryptText = "";
-
-        CryptoPP::StringSource(string_plaintext, true,
-            new CryptoPP::PK_EncryptorFilter(rnd, Encryptor,
-            new CryptoPP::StringSink(encryptText)));
-
-        for (int i = 0; i < encryptText.size(); i++)
-        {
-            ciphertext.GetData().push_back(encryptText[i]);
-        }
+		std::string string_plaintext = "";
+		int block_size = 85;
+		std::vector<byte> tmp;
+		tmp.resize(block_size);
+		int count_of_blocks = plaintext.GetData().size() / block_size;
+		for (int i = 0; i < count_of_blocks; i++)
+		{
+			encryptText = "";
+			string_plaintext = "";
+			for (int j = 0; j < block_size; j++)
+			{
+				tmp.at(j) = plaintext.GetData().at(i * block_size + j);
+			}
+			for each  (byte var in tmp)
+			{
+				string_plaintext += var;
+			}
+			CryptoPP::StringSource(string_plaintext, true,
+				new CryptoPP::PK_EncryptorFilter(rnd, Encryptor,
+					new CryptoPP::StringSink(encryptText)));
+			for (int i = 0; i < encryptText.size(); i++)
+			{
+				ciphertext.GetData().push_back(encryptText[i]);
+			}
+		}
+		encryptText = "";
+		string_plaintext = "";
+		tmp.resize(plaintext.GetData().size() - (count_of_blocks*block_size));
+		for(int j= 0; count_of_blocks * block_size + j<plaintext.GetData().size();j++)
+		{
+			tmp.at(j) = plaintext.GetData().at(count_of_blocks * block_size + j);
+		} 
+		for each  (byte var in tmp)
+		{
+			string_plaintext += var;
+		}
+		CryptoPP::StringSource(string_plaintext, true,
+			new CryptoPP::PK_EncryptorFilter(rnd, Encryptor,
+				new CryptoPP::StringSink(encryptText)));
+		for (int i = 0; i < encryptText.size(); i++)
+		{
+			ciphertext.GetData().push_back(encryptText[i]);
+		}
 
         if (!ciphertext.Write("..\\..\\cipher.txt"))
         {
@@ -215,9 +201,10 @@ public:
         {
             std::cout << "File saved at directory with project directory as cipher.txt" << "\n";
         }
+		system("pause");
 
     }
-    void Decrypt()
+	void Decrypt()
     {
         system("cls");
         plaintext.GetData().clear();
@@ -230,30 +217,42 @@ public:
             return;
         }
         std::string string_priv = "";
-        std::string string_ciphertext = "";
 
-        for each  (byte var in ciphertext.GetData())
-        {
-            string_ciphertext += var;
-        }
+
         for each  (byte var in privatekey.GetData())
         {
             string_priv += var;
         }
+
         CryptoPP::StringSource privString(string_priv, true, new CryptoPP::Base64Decoder);
         CryptoPP::RSAES_OAEP_SHA_Decryptor Decryptor(privString);
         CryptoPP::AutoSeededRandomPool randPool;
-        std::string decryptText = "";
-
-
-        CryptoPP::StringSource(string_ciphertext, true,
-            new CryptoPP::PK_DecryptorFilter(randPool, Decryptor,
-            new CryptoPP::StringSink(decryptText)));
-
-        for (int i = 0; i < decryptText.size(); i++)
-        {
-            plaintext.GetData().push_back(decryptText[i]);
-        }
+		std::string decryptText = "";
+		std::string string_ciphertext = "";
+		int block_size = 128;
+		std::vector<byte> tmp;
+		tmp.resize(block_size);
+		int count_of_blocks = ciphertext.GetData().size() / block_size;
+		for (int i = 0; i < count_of_blocks; i++)
+		{
+			decryptText = "";
+			string_ciphertext = "";
+			for (int j = 0; j < block_size; j++)
+			{
+				tmp.at(j) = ciphertext.GetData().at(i * block_size + j);
+			}
+			for each  (byte var in tmp)
+			{
+				string_ciphertext += var;
+			}
+			CryptoPP::StringSource(string_ciphertext, true,
+				new CryptoPP::PK_DecryptorFilter(randPool, Decryptor,
+					new CryptoPP::StringSink(decryptText)));
+			for (int i = 0; i < decryptText.size(); i++)
+			{
+				plaintext.GetData().push_back(decryptText[i]);
+			}
+		}
 
         std::cout << "File decrypted!\nSave as:\n";
         std::cin >> out_file_name;
@@ -276,9 +275,8 @@ void main()
     keygener keys;
     system("cls");
     keys.GenerateForRsa();
-    rsa.Encrypt();
-    rsa.Decrypt();
-    std::cout << "Press any key for ending...";
-    getch();
+	rsa.Encrypt();
+	rsa.Decrypt();
+	
 }
 
