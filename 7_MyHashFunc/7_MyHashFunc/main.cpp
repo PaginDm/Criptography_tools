@@ -129,6 +129,7 @@ void main()
 	MyFile plaintext;
 	std::string out_file_name;
 	std::string in_file_name;
+	std::string int_face[3] = { "In process.","In process..","In process..." };
 	std::vector<byte> tmp;
 	std::cout << "Move a file at directory with project directory.\n";
 	std::cout << "Filename for hashing:\n";
@@ -142,21 +143,16 @@ void main()
 	system("cls");
 	tmp.resize(256);
 	hash.SetBlockSize(32);
-	int count_of_blocks = plaintext.GetData().size() / 256;
-	int add_bytes = plaintext.GetData().size() % 256;
-	plaintext.GetData().resize(256 *(count_of_blocks + 1));
-	for (int i = count_of_blocks * 256 + add_bytes; i < (count_of_blocks + 1) * 256; i++)
-	{
-		plaintext.GetData().at(i) = 0;
-	}
-	for (int i = 0; i < count_of_blocks + 1; i++)
+	int count_of_blocks = plaintext.GetData().size() - 255;
+	for (int i = 0; i < count_of_blocks; i=i+32)
 	{
 		for (int j = 0; j < 256; j++)
 		{
-			tmp.at(j) = plaintext.GetData().at(i * 256 + j);
+			tmp.at(j) = plaintext.GetData().at(i + j);
 		}
 		hash.GetHashForVector(tmp);
-
+		system("cls");
+		std::cout << int_face[i % 3];
 		for each  (byte bit in hash.GetHashAsVector())
 		{
 			Hash.GetData().push_back(bit);
