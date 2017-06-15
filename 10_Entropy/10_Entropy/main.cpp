@@ -127,6 +127,14 @@ public:
 		return entropy;
 	}
 
+	double CompareWithZip(std::string NameOfZip)
+	{
+		MyFile zip;
+		zip.Open(NameOfZip);
+		double comp = (((double)ent.GetData().size() / zip.GetData().size())-1)*100;
+		return comp;
+	}
+
 
 };
 
@@ -164,5 +172,9 @@ void main()
 	Zip(L"..\\..\\sha.zip", L"sha.txt", L"..\\..\\sha_hash.txt");
 
 	std::cout << "\nFiles added to archive. Look at directory with project";
+
+	std::cout << "\nRatio of zipfile to plaintext: " << ENT3.CompareWithZip("..\\..\\plain.zip");
+	std::cout << "\nRatio of zipfile to Sha: " << ENT2.CompareWithZip("..\\..\\sha.zip");
+	std::cout << "\nRatio of zipfile to Myhash: " << ENT.CompareWithZip("..\\..\\myhash.zip") <<"\n";
     system("pause");
 }
