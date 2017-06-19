@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include "..\..\MyFile.h"
 #include "..\..\zip.h"
-
 #pragma warning(disable : 4996)
 #define _CRT_NO_WARNINGS
 
