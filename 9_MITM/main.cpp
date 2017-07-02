@@ -75,8 +75,9 @@ public:
     }
 
 
-    static void CreateTable(uint32_t start, uint32_t end, std::vector<byte> &plain_v, std::vector<byte> &cipher_v, uint64_t &key1, uint64_t &key2, std::map <std::vector<byte>, uint64_t> &e, std::map <std::vector<byte>, uint64_t> &d)
+    static void CreateTable(uint64_t &start, uint64_t &end, std::vector<byte> &plain_v, std::vector<byte> &cipher_v, uint64_t key1, uint64_t key2, std::map <std::vector<byte>, uint64_t> &e, std::map <std::vector<byte>, uint64_t> &d)
     {
+        MITM::summ(key1, key2, 0, start);
         for (int i = start; i < end; i++)
         {
             e.insert(std::pair <std::vector<byte>, uint64_t >(MITM::Encrypt(plain_v, key2), key2));
@@ -85,22 +86,14 @@ public:
         }
     }
 
+
 };
 
 
-void CreateTable(uint32_t start, uint32_t end, std::vector<byte> &plain_v, std::vector<byte> &cipher_v, uint64_t key1, uint64_t key2, std::map <std::vector<byte>, uint64_t> e, std::map <std::vector<byte>, uint64_t> d)
-{
-    for (uint32_t i = start; i < end; i++)
-    {
-        e.insert(std::pair <std::vector<byte>, uint64_t >(MITM::Encrypt(plain_v, key2), key2));
-        d.insert(std::pair <std::vector<byte>, uint64_t >(MITM::Decrypt(cipher_v, key1), key1));
-        MITM::summ(key1, key2, 0, 1);
-    }
-}
 
 int main()
 {
-	uint64_t shift_max = 65000;
+    uint64_t shift_max = 65536;
 	uint64_t start_key_part1;
 	uint64_t start_key_part2;
 	uint64_t shift;
@@ -128,12 +121,12 @@ int main()
 
     cipher_v = MITM::Encrypt(MITM::Encrypt(plain_v, my_key2), my_key1);
     decrypt_v = MITM::Decrypt(MITM::Decrypt(cipher_v, my_key1), my_key2);
-
+    std::cout << "Plaintext:" << std::endl;
     MITM::print_v(plain_v);
+    std::cout << "Ciphertext" << std::endl;
     MITM::print_v(cipher_v);
-    MITM::print_v(decrypt_v);
 
-
+    std::cout << "Start key"<<  std::endl;
 	std::cout << std::hex << my_key1 << std::endl << my_key2 << std::endl;
 
 
@@ -141,39 +134,61 @@ int main()
 	std::map <std::vector<byte>, uint64_t> e1;
     std::map <std::vector<byte>, uint64_t> d2;
     std::map <std::vector<byte>, uint64_t> e2;
+    std::map <std::vector<byte>, uint64_t> d3;
+    std::map <std::vector<byte>, uint64_t> e3;
+    std::map <std::vector<byte>, uint64_t> d4;
+    std::map <std::vector<byte>, uint64_t> e4;
     uint64_t key1 = start_key_part1;
     uint64_t key2 = start_key_part2;
 
-    std::thread Thread1(MITM::CreateTable, 0, 20000, plain_v, cipher_v, key1, key2, std::ref(e1), std::ref(d1));
-    std::thread Thread2(MITM::CreateTable, 20000, 65000, plain_v, cipher_v, key1, key2, std::ref(e2), std::ref(d2));
+    std::thread Thread1(MITM::CreateTable, (uint64_t)0, shift_max/4, plain_v, cipher_v, key1, key2, std::ref(e1), std::ref(d1));
+    std::thread Thread2(MITM::CreateTable, shift_max/4, shift_max/2, plain_v, cipher_v, key1, key2, std::ref(e2), std::ref(d2));
+    std::thread Thread3(MITM::CreateTable, shift_max/2, shift_max/4*3, plain_v, cipher_v, key1, key2, std::ref(e3), std::ref(d3));
+    std::thread Thread4(MITM::CreateTable, shift_max / 4 * 3, shift_max, plain_v, cipher_v, key1, key2, std::ref(e4), std::ref(d4));
 
     std::cout << "Create tables...\n";
     Thread1.join();
     Thread2.join();
-
-    //MITM::CreateTable(0, 20000, plain_v, cipher_v, key1, key2, e1, d1);
-	//for (uint32_t i = 0; i < shift_max; i++)
-	//{
- //       e1.insert(std::pair <std::vector<byte>, uint64_t >(MITM::Encrypt(plain_v, key2), key2));
- //       d1.insert(std::pair <std::vector<byte>, uint64_t >(MITM::Decrypt(cipher_v, key1), key1));
- //       MITM::summ(key1, key2, 0, 1);
-	//}
+    Thread3.join();
+    Thread4.join();
 
 	std::cout << std::endl;
 
-	uint64_t key2_r = (*d1.begin()).second;
-	uint64_t key1_r = (*e1.find((*d1.begin()).first)).second;
-    if (key1_r == NULL)
-        key1_r = (*e2.find((*d1.begin()).first)).second;
+    std::vector<std::map <std::vector<byte>, uint64_t>> e;
+    std::vector<std::map <std::vector<byte>, uint64_t>> d;
+    e.push_back(e1);
+    e.push_back(e2);
+    e.push_back(e3);
+    e.push_back(e4);
+    d.push_back(d1);
+    d.push_back(d2);
+    d.push_back(d3);
+    d.push_back(d4);
+
+    uint64_t pair[2] = {NULL,NULL};
+    for each (std::map <std::vector<byte>, uint64_t> dd in d)
+    {
+        for each(std::map <std::vector<byte>, uint64_t> ee in e)
+        {
+            if ((ee.find((dd.begin())->first)) != ee.end())
+            {
+                pair[0] = (ee.find((dd.begin())->first))->second;
+                pair[1] = (dd.begin())->second;
+                break;
+            }
+        }
+        if (pair[0] != NULL)
+            break;
+    }
+    std::cout << "Find key" << std::endl;
+    std::cout << std::hex << pair[1];
+    std::cout << std::endl;
+    std::cout << std::hex << pair[0];
+    std::cout << std::endl;
 
 	decrypt_v.clear();
-    decrypt_v = MITM::Decrypt(MITM::Decrypt(cipher_v, key2_r), key1_r);
-
-	std::cout << std::hex << key2_r;
-	std::cout << std::endl;
-	std::cout << std::hex << key1_r;
-	std::cout << std::endl;
-
+    decrypt_v = MITM::Decrypt(MITM::Decrypt(cipher_v, pair[1]), pair[0]);
+    std::cout << "Decrypted text:" << std::endl;
     MITM::print_v(decrypt_v);
 
 	std::cout << std::endl;
