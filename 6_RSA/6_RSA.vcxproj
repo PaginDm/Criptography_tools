@@ -43,7 +43,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>..\Shared;..\ThirdParty\src;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Limon\Desktop\Гит\universuty\ThirdParty\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\Shared;..\ThirdParty\lib;$(LibraryPath)</LibraryPath>
     <OutDir>..\bin</OutDir>
     <IntDir>..\bin</IntDir>
   </PropertyGroup>
@@ -63,7 +63,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cryptlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cryptlib.lib;MyFile.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <BuildLog>
       <Path>..\bin\log.log</Path>

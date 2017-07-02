@@ -43,7 +43,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\bin</OutDir>
     <IntDir>..\bin</IntDir>
-    <LibraryPath>..\ThirdParty\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\Shared;..\ThirdParty\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>..\Shared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -61,6 +61,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>MyFile.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <BuildLog>
       <Path>..\bin\log.log</Path>

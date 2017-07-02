@@ -170,7 +170,6 @@ public:
 			if (findData.dwFileAttributes && FILE_ATTRIBUTE_DIRECTORY)
 			{
 				if (path != "." && path != "..") {
-					//std::cout << pathdir + path + "\\";
 					MakeTable(hashTable, flag, pathdir + path + "\\", 0, i, j, a);
 				}
 				isdirectory = true;
@@ -229,7 +228,7 @@ public:
 	static void SaveTable(std::vector<std::vector<File>> &hashTable, std::string &FileName)
 	{
 		std::ofstream out;
-		out.open("..\\..\\"+FileName);
+		out.open("..\\Resources\\"+FileName);
 		for (int i = 0; i < hashTable.size(); i++)
 		{
 			if (hashTable.at(i).size() != 0)
@@ -261,8 +260,11 @@ void main()
 	system("cls");
 	std::cout << "Write a Max-alpha for hash-table:\n";
 	std::cin >> a;
+    std::string startdir;
+    std::cout << "Write a start directory:\n";
+    std::cin >> startdir;
 	system("cls");
-	HashTable::MakeTable(hashTable, flag, "D:\\Mortal Kombat XL\\", 0, i, j, a);
+	HashTable::MakeTable(hashTable, flag, startdir, 0, i, j, a);
 	if(((float)i / j) > a)
 	{
 		std::cout << "\nAlpha more than Alpha-max. Starting re-build hash-table. \nPress any key!";
@@ -272,7 +274,7 @@ void main()
 		flag = !flag;
 		i = 0;
 		j = 0;
-		HashTable::MakeTable(hashTable, flag, "D:\\Mortal Kombat XL\\", 0, i, j, a);
+		HashTable::MakeTable(hashTable, flag, startdir, 0, i, j, a);
 	}
 	if (((float)i / j) > a)
 	{
@@ -289,7 +291,3 @@ void main()
 
     system("pause");
 }
-
-//http://www.cyberforum.ru/cpp-beginners/thread284051.html
-
-//https://ru.stackoverflow.com/questions/265627/%D0%9E%D1%86%D0%B5%D0%BD%D0%B8%D1%82%D0%B5-%D1%80%D0%B5%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8E-%D1%85%D0%B5%D1%88-%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D1%8B

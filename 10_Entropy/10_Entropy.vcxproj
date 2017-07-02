@@ -73,6 +73,7 @@
     <IntDir>..\bin</IntDir>
     <IncludePath>..\ThirdParty\src;..\Shared;$(IncludePath)</IncludePath>
     <SourcePath>C:\Users\Limon\Desktop\Гит\universuty\ThirdParty\src;$(SourcePath)</SourcePath>
+    <LibraryPath>..\Shared;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -91,10 +92,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>MyFile.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <BuildLog>
       <Path>..\bin\log.log</Path>

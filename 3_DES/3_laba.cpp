@@ -13,7 +13,6 @@
 #include "MyFile.h"
 
 
-
 class DES3
 {
 private:
