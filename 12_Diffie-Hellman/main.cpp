@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     bool is_Server = false;
-    srand(time(0));
+    //srand(time(0));
     std::string name = "someboby";
     if (argc > 1)
     {
@@ -94,9 +94,7 @@ int main(int argc, char* argv[])
     }
     std::stringstream ss;
     char buff[1024];
-    SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 6));
     std::cout << "Hello! I'm "<< name <<"\n";
-    SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 7));
 
     WSAStartup(0x0202, (WSADATA *)&buff[0]);
 
@@ -183,7 +181,6 @@ int main(int argc, char* argv[])
 
         for (int i = 0; i < count; i++)
             ciphertext += (byte)buff[i];
-        //ciphertext += '\0';
         std::string plaintext = Decrypt(ciphertext, key_str);
 
         std::cout << "Name of my friend is: " << plaintext << std::endl;
@@ -270,7 +267,6 @@ int main(int argc, char* argv[])
 
             std::string ciphertext = Encrypt(name, key_str);
             send(client_socket, ciphertext.c_str(), ciphertext.size(), 0);
-
 
             closesocket(client_socket);
             system("pause");
